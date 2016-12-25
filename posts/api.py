@@ -14,11 +14,17 @@ from .database import Post
 def posts_get():
     """ Get a list of posts """
     title_like = request.args.get("title_like")
+    body_like = request.args.get("body_like")
 
     posts = session.query(Post)
     if title_like:
         posts = posts.filter(Post.title.contains(title_like))
-    posts = posts.order_by(Post.id)
+    elif body_like: 
+        posts = posts.filter(Post.title.contains(body_like))
+    elif title_like and body_like:
+        posts.filter(Post.title.contains(title_like)).filter(Post.title.contains(body_like))
+    else:
+        posts = posts.order_by(Post.id)
 
     data = json.dumps([post.as_dictionary() for post in posts])
     return Response(data, 200, mimetype="application/json")
